@@ -1,19 +1,10 @@
 # -*- coding: utf-8 -*-
 __author__ = 'rooty'
 
-import os
-import django
 from django.conf import settings
 
 
-if settings.DEBUG:
-    settings.MIDDLEWARE_CLASSES += (
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-    )
-if settings.DEBUG:
-    settings.INSTALLED_APPS = (
-        'debug_toolbar',
-    )
+'''
 
 INTERNAL_IPS = ('127.0.0.1',)
 
@@ -31,7 +22,6 @@ DEBUG_TOOLBAR_PANELS = (
 
 def custom_show_toolbar(request):
     return True  # Always show toolbar, for example purposes only.
-
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
     'SHOW_TOOLBAR_CALLBACK': custom_show_toolbar,
@@ -40,7 +30,7 @@ DEBUG_TOOLBAR_CONFIG = {
     'TAG': 'div',
     'ENABLE_STACKTRACES' : True,
 }
-
+'''
 # Этот DSN вы получите на странице "документации по настройке клиента для вашего проекта"
 SENTRY_DSN = 'http://74cd841ed6564f1a99ae77f6609d9860:df920f0cfc034c1ea2870f2819b2bb25@sentry.chm.od.ua/2'
 

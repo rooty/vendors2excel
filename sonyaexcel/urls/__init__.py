@@ -11,7 +11,7 @@ handler500 = 'sonyaexcel.views.server_error'
 
 urlpatterns = patterns('',
     # Examples:
-     url(r'^$', 'sonyaexcel.views.home', name='home'),
+     url(r'^$', 'warehouse.views.home', name='home'),
     # url(r'^sonyaexcel/', include('sonyaexcel.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

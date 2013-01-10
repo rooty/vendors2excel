@@ -2,7 +2,7 @@
 from django.conf import settings
 
 DEPLOYMENT_MODE = 'dev'
-COMPRESS_REVISION_NUMBER = '1.0'
+COMPRESS_REVISION_NUMBER = '1.1.5'
 
 
 #Blog Integration: Tumblr
