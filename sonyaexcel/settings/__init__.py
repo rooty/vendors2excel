@@ -1,4 +1,10 @@
+# -*- coding: utf-8 -*-
 # Django settings for sonyaexcel project.
+import os, re, django, logging
+
+# calculated paths for django and the site
+# used as starting points for various other paths
+DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -8,17 +14,36 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-
-DATABASES = {
+PROJECT_PATH = os.path.join(os.path.realpath(os.path.dirname(__file__)), '../')
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+#        'NAME': '/tmp/ss.db',                      # Or path to database file if using sqlite3.
+#        'USER': '',                      # Not used with sqlite3.
+#        'PASSWORD': '',                  # Not used with sqlite3.
+#        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+#        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+#    }
+#}
+CACHES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'aa.db',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': 'unix:/tmp/memcached.sock',
+        'KEY_PREFIX': 'ssg_',
     }
 }
+CACHE_IGNORE_REGEXPS = (
+    re.compile(r'/admin.*'),
+    re.compile(r'/some_url.*'),
+)
+
+# Укажем новые бэкэнд к сессиям.
+# Данные не шифруется, поэтому мы запретим их чтение через js.
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_COOKIE_HTTPONLY = True
+
+# Следующее вышлет на почту уведомления о "сломанных" ссылках
+SEND_BROKEN_LINK_EMAILS = True
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -29,6 +54,11 @@ TIME_ZONE = 'Europe/Kiev'
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'ru'
+LANGUAGES = (
+      #('fr', 'Français'),
+      ('ru', 'Russian'),
+      ('en', 'English'),
+)
 
 SITE_ID = 1
 
@@ -45,18 +75,18 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(PROJECT_PATH, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(PROJECT_PATH, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -102,8 +132,9 @@ ROOT_URLCONF = 'sonyaexcel.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'sonyaexcel.wsgi.application'
 
-import os
-TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), '..', 'templates').replace('\\','/'),)
+TEMPLATE_DIRS = ( 
+    os.path.join(PROJECT_PATH, 'templates')
+)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -119,11 +150,14 @@ INSTALLED_APPS = (
     'warehouse',
 )
 
-try:
-    from local import *
-except ImportError:
-    pass
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
+
+RAVEN_CONFIG = {
+    'dsn': 'http://74cd841ed6564f1a99ae77f6609d9860:df920f0cfc034c1ea2870f2819b2bb25@sentry.chm.od.ua/2',
+    'register_signals': True,
+}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -153,3 +187,24 @@ LOGGING = {
         },
     }
 }
+
+
+
+
+try:
+    from sonyaexcel.settings.local import *
+#except Exception:
+#    pass
+except Exception, e:
+    import os, sys, warnings
+    warnings.warn("Unable import settings/local [%s]: %s" % (type(e), e))
+    sys.exit(1)
+
+try:
+    from sonyaexcel.settings.syte_settings import *
+#except Exception, e:
+#    pass
+except Exception, e:
+    import os, sys, warnings
+    warnings.warn("Unable import settings/syte [%s]: %s" % (type(e), e))
+    sys.exit(1)

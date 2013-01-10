@@ -1,5 +1,6 @@
 
-from context_processor import site_pages
+# -*- coding: utf-8 -*-
+from utils import   context_processor
 from django.shortcuts import render
 from django.template import Context, loader
 from django.http import HttpResponseServerError

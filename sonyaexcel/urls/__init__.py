@@ -11,7 +11,7 @@ handler500 = 'sonyaexcel.views.server_error'
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'sonyaexcel.views.home', name='home'),
+     url(r'^$', 'sonyaexcel.views.home', name='home'),
     # url(r'^sonyaexcel/', include('sonyaexcel.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
@@ -19,4 +19,13 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
+)
+
+
+#Statics: Hacky for now... fix this later...
+urlpatterns += patterns('',
+    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {
+        'url': '/static/imgs/favicon.ico'}),
+    (r'^static/(?P<path>.*)$', 'django.views.static.serve',
+        {'document_root': settings.MEDIA_ROOT}),
 )
