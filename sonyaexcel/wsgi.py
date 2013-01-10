@@ -15,6 +15,7 @@ framework.
 
 """
 import os
+
 from raven.middleware import Sentry
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sonyaexcel.settings")
