@@ -46,6 +46,7 @@ class VendorPriceFile(models.Model):
     vendor = models.ForeignKey(Vendor, related_name='vendorpricefile2vendor', verbose_name='vendor price file')
     pricefile = models.FileField(upload_to=get_file_path, verbose_name='price file name')
     pricedate = models.DateTimeField(verbose_name='price date time')
+    converted = models.BooleanField(default=False,verbose_name='file converted')
 
     class Meta:
         db_table = 'vendorpricefile'
@@ -56,6 +57,11 @@ class VendorPriceFile(models.Model):
 
 
 def convertvendorprice2price(sender, instance, created, **kwargs):
+    vfp = VendorPriceFile(sender)
+    file2process = vfp.pricefile
+    vfp.converted = True
+    vfp.save()
+
     return 1
 
-models.post_save.connect(convertvendorprice2price, sender=VendorPriceFile, dispatch_uid='VendorPriceFile')
+models.signals.post_save.connect(convertvendorprice2price, sender=VendorPriceFile, dispatch_uid='VendorPriceFile')
