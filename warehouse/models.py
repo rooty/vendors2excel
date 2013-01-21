@@ -55,13 +55,16 @@ class VendorPriceFile(models.Model):
         return u"%s от %s" % (self.vendor.name, self.pricedate)
 
 
-
+"""
+функция конвертации нового загруженного прайса
+"""
 def convertvendorprice2price(sender, instance, created, **kwargs):
     vfp = VendorPriceFile(sender)
-    file2process = vfp.pricefile
-    vfp.converted = True
-    vfp.save()
+    if not vfp.converted:
+        file2process = vfp.pricefile
+        vfp.converted = True
+        vfp.save()
 
-    return 1
+    return True
 
 models.signals.post_save.connect(convertvendorprice2price, sender=VendorPriceFile, dispatch_uid='VendorPriceFile')
