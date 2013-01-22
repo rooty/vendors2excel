@@ -14,30 +14,31 @@ class Vendor(models.Model):
     name = models.CharField(verbose_name='vendor name',max_length=128)
     description = models.TextField(verbose_name='vendor description',blank=True)
 
+    def save(self, *args, **kwargs):
+        self.name = self.name.lower()
+        settings.logger.info('Vendor: save...')
+        return super(Vendor, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.name
+
 
     class Meta:
         db_table = 'vendor'
         ordering = ['id','name']
 
 
-    def __unicode__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        self.name = self.name.lower()
-        settings.logger.info('Vendor: save...')
-        return super(Vendor, self).save(*args, **kwargs)
 
 
 class VendorPriceFile(models.Model):
     """
     Сохранение файлов загруженых прайсов, один файл = загруженый файл прайса от вендора
     """
-    #
-    """
-    генерация уникального имени для файла прайса
-    """
+
     def get_file_path(self, filename):
+        """
+        генерация уникального имени для файла прайса
+        """
         extension = filename.split('.')[-1]
         filename = "%s.%s" % (uuid.uuid4(), extension)
         return os.path.join("price", filename)
@@ -48,17 +49,45 @@ class VendorPriceFile(models.Model):
     pricedate = models.DateTimeField(verbose_name='price date time')
     converted = models.BooleanField(default=False,verbose_name='file converted')
 
-    class Meta:
-        db_table = 'vendorpricefile'
-
     def __unicode__(self):
         return u"%s от %s" % (self.vendor.name, self.pricedate)
 
 
-"""
-функция конвертации нового загруженного прайса
-"""
+    class Meta:
+        db_table = 'vendorpricefile'
+        ordering = ['vendor','pricedate']
+
+
+class   PriceItem(models.Model):
+    """
+    выходная прайсовая (внутрения) позиция товара
+    """
+    name = models.CharField(max_length=128,verbose_name='price item')
+    description = models.TextField(verbose_name='price item description',blank=True)
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.lower()
+
+        if self.description == '':
+            self.description = self.name
+
+        settings.logger.info('Price Item: save...')
+        return super(PriceItem, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.name
+
+
+    class Meta:
+        db_table = 'priceitem'
+        ordering = ['name']
+
+
+
 def convertvendorprice2price(sender, instance, created, **kwargs):
+    """
+    функция конвертации нового загруженного прайса
+    """
     vfp = VendorPriceFile(sender)
     if not vfp.converted:
         file2process = vfp.pricefile
