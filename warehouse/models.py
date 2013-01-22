@@ -90,10 +90,11 @@ def convertvendorprice2price(sender, instance, created, **kwargs):
     """
     vfp = VendorPriceFile(sender)
     if not vfp.converted:
-        file2process = vfp.pricefile
+        filename2process = vfp.pricefile.name
         vfp.converted = True
         vfp.save()
-
+    # todo: добавить обработку самого файла(конвертацию)
+    #
     return True
 
 models.signals.post_save.connect(convertvendorprice2price, sender=VendorPriceFile, dispatch_uid='VendorPriceFile')
